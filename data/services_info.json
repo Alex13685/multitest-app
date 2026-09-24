@@ -1,0 +1,362 @@
+{
+  "amazon_ec2": {
+    "name": "Amazon EC2 (Elastic Compute Cloud)",
+    "category": "Compute",
+    "desc_ru": "Масштабируемые виртуальные серверы в облаке AWS с полным административным контролем над операционной системой.",
+    "desc_en": "Scalable virtual compute servers in the AWS Cloud with complete administrative control over the OS.",
+    "key_points_ru": [
+      "Модели оплаты: On-Demand, Spot (до 90% скидки), Savings Plans и Reserved Instances",
+      "Полный root / administrator доступ к операционной системе",
+      "Поддержка Auto Scaling и Elastic Load Balancing для отказоустойчивости"
+    ],
+    "key_points_en": [
+      "Pricing models: On-Demand, Spot (up to 90% off), Savings Plans & Reserved Instances",
+      "Full root / administrator access to the guest OS",
+      "Integrates with Auto Scaling and Elastic Load Balancing for high availability"
+    ]
+  },
+  "ec2_dedicated_hosts": {
+    "name": "Amazon EC2 Dedicated Hosts",
+    "category": "Compute / Compliance & Licensing",
+    "desc_ru": "Физический сервер EC2, полностью выделенный для одного клиента, с контролем над физическими ядрами и сокетами.",
+    "desc_en": "A physical EC2 server dedicated for your use, providing socket and core visibility for compliance and licensing.",
+    "key_points_ru": [
+      "Поддержка собственных серверных лицензий (BYOL: Windows Server, SQL Server, RHEL)",
+      "Видимость и контроль над распределением инстансов по физическим сокетам и ядрам",
+      "Строгое соответствие корпоративным и отраслевым нормативным требованиям"
+    ],
+    "key_points_en": [
+      "Bring Your Own License (BYOL) support bound to physical sockets/cores",
+      "Host-level placement visibility and control over sockets and cores",
+      "Strict compliance with dedicated regulatory and audit standards"
+    ]
+  },
+  "ec2_dedicated_instances": {
+    "name": "Amazon EC2 Dedicated Instances",
+    "category": "Compute / Hardware Isolation",
+    "desc_ru": "Инстансы EC2, работающие на выделенном оборудовании на уровне аккаунта, изолированные от других клиентов AWS.",
+    "desc_en": "EC2 instances running on hardware dedicated to a single customer account, isolated from other tenants.",
+    "key_points_ru": [
+      "Аппаратная изоляция от других клиентов AWS на уровне сервера",
+      "Нет контроля за конкретными сокетами/ядрами (в отличие от Dedicated Hosts)",
+      "Не подходят для лицензирования ПО по физическим сокетам (BYOL)"
+    ],
+    "key_points_en": [
+      "Physical hardware isolation from other AWS customers at host level",
+      "No host-level visibility or control over physical sockets/cores",
+      "Cannot be used for socket-bound BYOL licensing"
+    ]
+  },
+  "ec2_spot_instances": {
+    "name": "Amazon EC2 Spot Instances",
+    "category": "Compute / Cost Optimization",
+    "desc_ru": "Свободные вычислительные мощности AWS, доступные со скидкой до 90% по сравнению с On-Demand.",
+    "desc_en": "Spare EC2 compute capacity available at up to 90% discount compared to On-Demand rates.",
+    "key_points_ru": [
+      "Скидки до 90%, идеальны для прерываемых задач, пакетной обработки (batch) и CI/CD",
+      "AWS может отозвать инстанс с предупреждением за 2 минуты при нехватке мощностей",
+      "Не подходят для критически важных непрерывных баз данных или веб-сайтов без репликации"
+    ],
+    "key_points_en": [
+      "Up to 90% savings for fault-tolerant, stateless, or batch workloads",
+      "AWS can terminate instances with a 2-minute interruption notice",
+      "Not recommended for stateful or latency-sensitive production workloads"
+    ]
+  },
+  "ec2_reserved_instances": {
+    "name": "Amazon EC2 Reserved Instances (RI)",
+    "category": "Billing & Pricing",
+    "desc_ru": "Скидочный механизм биллинга (до 72%) в обмен на обязательство использования на 1 или 3 года.",
+    "desc_en": "A billing discount mechanism (up to 72%) in exchange for a 1- or 3-year usage commitment.",
+    "key_points_ru": [
+      "Standard RI: максимальная скидка, неизменный тип инстанса",
+      "Convertible RI: возможность менять тип, ОС и семейство инстансов",
+      "Варианты оплаты: All Upfront (макс. скидка), Partial Upfront, No Upfront"
+    ],
+    "key_points_en": [
+      "Standard RI: highest discount, fixed instance attributes",
+      "Convertible RI: flexibility to change instance families and OS",
+      "Payment options: All Upfront, Partial Upfront, No Upfront"
+    ]
+  },
+  "amazon_s3": {
+    "name": "Amazon S3 (Simple Storage Service)",
+    "category": "Storage",
+    "desc_ru": "Масштабируемое объектное хранилище с долговечностью 99.999999999% (11 девяток) для любых объемов данных.",
+    "desc_en": "Scalable object storage designed for 99.999999999% (11 9s) of data durability.",
+    "key_points_ru": [
+      "Классы: Standard, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier, Deep Archive",
+      "Версионирование, шифрование по умолчанию и блокировка объектов (Object Lock / WORM)",
+      "Статический хостинг сайтов и прямое подключение к CloudFront"
+    ],
+    "key_points_en": [
+      "Storage classes: Standard, Intelligent-Tiering, IA, Glacier, Deep Archive",
+      "Versioning, default encryption, and Object Lock (WORM compliance)",
+      "Static website hosting and seamless integration with CloudFront"
+    ]
+  },
+  "s3_intelligent_tiering": {
+    "name": "Amazon S3 Intelligent-Tiering",
+    "category": "Storage / Cost Optimization",
+    "desc_ru": "Класс хранения S3, автоматически перемещающий объекты между уровнями доступа при изменении активности без платы за извлечение.",
+    "desc_en": "S3 storage class that automatically optimizes storage costs by moving data between tiers without retrieval fees.",
+    "key_points_ru": [
+      "Автоматическая экономия для данных с неизвестными или меняющимися паттернами доступа",
+      "Нет платы за извлечение данных (Zero retrieval fees) и нет влияния на производительность",
+      "Уровни: Frequent Access, Infrequent Access (30 дней), Archive Instant Access (90 дней)"
+    ],
+    "key_points_en": [
+      "Automatic cost savings for data with unknown or unpredictable access patterns",
+      "Zero operational retrieval fees and no impact on access performance",
+      "Access tiers: Frequent, Infrequent (30 days), Archive Instant Access (90 days)"
+    ]
+  },
+  "s3_glacier": {
+    "name": "Amazon S3 Glacier Flexible Retrieval",
+    "category": "Storage / Archival",
+    "desc_ru": "Низкозатратный класс хранения для долгосрочного архивирования с извлечением данных от 1–5 минут до нескольких часов.",
+    "desc_en": "Low-cost archival storage class with retrieval options ranging from minutes to hours.",
+    "key_points_ru": [
+      "Предназначен для архивных данных, к которым обращаются редко (1–2 раза в год)",
+      "Опции извлечения: Expedited (1–5 мин), Standard (3–5 часов), Bulk (5–12 часов)",
+      "Для самых глубоких холодных архивов существует S3 Glacier Deep Archive (до 12–48 часов)"
+    ],
+    "key_points_en": [
+      "Designed for long-term archive data accessed rarely",
+      "Retrieval options: Expedited (1-5 min), Standard (3-5 hours), Bulk (5-12 hours)",
+      "For lowest-cost cold storage, S3 Glacier Deep Archive provides retrieval in 12-48 hours"
+    ]
+  },
+  "amazon_inspector": {
+    "name": "Amazon Inspector",
+    "category": "Security & Vulnerability Management",
+    "desc_ru": "Автоматизированный сервис управления уязвимостями, непрерывно сканирующий инстансы EC2, образы ECR и функции Lambda.",
+    "desc_en": "Automated vulnerability management service that continually scans EC2 instances, ECR container images, and Lambda functions.",
+    "key_points_ru": [
+      "Автоматическое сканирование на наличие известных уязвимостей ПО (CVE)",
+      "Проверка непреднамеренной доступности серверов из внешней сети",
+      "Присвоение оценки риска уязвимостям для приоритизации исправлений"
+    ],
+    "key_points_en": [
+      "Automated scanning for known Common Vulnerabilities and Exposures (CVEs)",
+      "Evaluates unintended external network accessibility",
+      "Contextual vulnerability scores to prioritize patching"
+    ]
+  },
+  "amazon_guardduty": {
+    "name": "Amazon GuardDuty",
+    "category": "Security & Threat Detection",
+    "desc_ru": "Сервис интеллектуального обнаружения угроз на основе машинного обучения и анализа журналов активности AWS.",
+    "desc_en": "Intelligent threat detection service that continuously monitors accounts and workloads for malicious activity.",
+    "key_points_ru": [
+      "Анализирует события AWS CloudTrail, логи VPC Flow Logs, DNS-запросы и аудит EKS",
+      "Выявляет взлом учетных данных, несанкционированный майнинг криптовалют и аномальный трафик",
+      "Полностью безагентный сервис (не требует установки ПО на инстансы)"
+    ],
+    "key_points_en": [
+      "Analyzes CloudTrail management & data events, VPC Flow Logs, DNS query logs, EKS audit logs",
+      "Detects compromised credentials, cryptomining malware, and reconnaissance activity",
+      "Completely agentless architecture"
+    ]
+  },
+  "aws_shield": {
+    "name": "AWS Shield",
+    "category": "Security & DDoS Protection",
+    "desc_ru": "Управляемый сервис защиты приложений от распределенных атак типа «отказ в обслуживании» (DDoS).",
+    "desc_en": "Managed Distributed Denial of Service (DDoS) protection service for applications running on AWS.",
+    "key_points_ru": [
+      "AWS Shield Standard: автоматическая бесплатная защита на сетевом и транспортном уровнях (L3/L4)",
+      "AWS Shield Advanced: расширенная защита от L7-атак, круглосуточная команда Shield Response Team (SRT)",
+      "Shield Advanced включает финансовую защиту от всплесков счетов (DDoS Cost Protection)"
+    ],
+    "key_points_en": [
+      "AWS Shield Standard: automatic free protection against common L3/L4 network floods",
+      "AWS Shield Advanced: specialized L7 attack mitigation and 24/7 Shield Response Team (SRT)",
+      "Includes financial cost protection against scaling charges resulting from DDoS attacks"
+    ]
+  },
+  "aws_waf": {
+    "name": "AWS WAF (Web Application Firewall)",
+    "category": "Security & Edge",
+    "desc_ru": "Межсетевой экран уровня приложений для фильтрации вредоносного HTTP/HTTPS-трафика и защиты от эксплойтов.",
+    "desc_en": "Web application firewall that helps protect web applications against common web exploits and bots at Layer 7.",
+    "key_points_ru": [
+      "Защита от SQL-инъекций (SQLi), Cross-Site Scripting (XSS) и атак ботов",
+      "Правила ограничения частоты запросов (Rate Limiting) для защиты от флуда",
+      "Подключается к Amazon CloudFront, Application Load Balancer (ALB), API Gateway и AWS AppSync"
+    ],
+    "key_points_en": [
+      "Protects against SQL injection, cross-site scripting (XSS), and malicious bots",
+      "Rate-based rules to mitigate HTTP application layer floods",
+      "Attaches directly to CloudFront, ALB, API Gateway, and AWS AppSync"
+    ]
+  },
+  "aws_cloudtrail": {
+    "name": "AWS CloudTrail",
+    "category": "Governance, Compliance & Auditing",
+    "desc_ru": "Сервис аудита и протоколирования вызовов API («Кто, Что, Когда и Откуда сделал в аккаунте AWS»).",
+    "desc_en": "Auditing and governance service that records API activity across your AWS infrastructure.",
+    "key_points_ru": [
+      "Фиксирует вызовы через консоль AWS, CLI, SDK и сторонние сервисы",
+      "Критически важен для расследования инцидентов безопасности и проверки соответствия стандартам",
+      "Бесплатная история событий управления за последние 90 дней (Event History)"
+    ],
+    "key_points_en": [
+      "Records API actions invoked via AWS Console, CLI, SDKs, and services",
+      "Vital for incident investigation, security forensics, and compliance audits",
+      "Free 90-day retention of management events in Event History"
+    ]
+  },
+  "amazon_cloudwatch": {
+    "name": "Amazon CloudWatch",
+    "category": "Monitoring & Observability",
+    "desc_ru": "Сервис сбора метрик, журналов (Logs) и настройки алертов для ресурсов и приложений в реальном времени.",
+    "desc_en": "Monitoring and observability service built for DevOps, system administrators, and developers.",
+    "key_points_ru": [
+      "Сбор метрик производительности (CPU utilization, сетевой ввод/вывод, статус дисков)",
+      "CloudWatch Alarms: автоматический триггер действий (Auto Scaling, отправка SNS-уведомлений)",
+      "CloudWatch Logs: централизованный сбор и поиск по логам приложений и системных журналов"
+    ],
+    "key_points_en": [
+      "Collects operational metrics (CPU utilization, network I/O, disk status, custom metrics)",
+      "CloudWatch Alarms: triggers Auto Scaling actions and SNS notification alerts",
+      "CloudWatch Logs: centralizes search and ingestion of application and OS log files"
+    ]
+  },
+  "aws_config": {
+    "name": "AWS Config",
+    "category": "Governance & Configuration Auditing",
+    "desc_ru": "Сервис непрерывного отслеживания, записи и оценки конфигураций ресурсов AWS на соответствие корпоративным политикам.",
+    "desc_en": "Service that continually assesses, audits, and evaluates the configurations of your AWS resources.",
+    "key_points_ru": [
+      "Записывает историю изменений конфигурации каждого ресурса во времени (Timeline)",
+      "Автоматически оценивает соответствие правилам (Config Rules, например: «S3 бакет должен быть зашифрован»)",
+      "Позволяет запускать автоматическое исправление (Remediation) при обнаружении несоответствий"
+    ],
+    "key_points_en": [
+      "Records point-in-time configuration histories and resource relationships",
+      "Evaluates resources against compliance guidelines (e.g. 'S3 buckets must be encrypted')",
+      "Triggers automated remediation workflows for non-compliant resources"
+    ]
+  },
+  "aws_trusted_advisor": {
+    "name": "AWS Trusted Advisor",
+    "category": "Optimization & Best Practices",
+    "desc_ru": "Персональный онлайн-консультант AWS, анализирующий окружение и дающий рекомендации по 5 ключевым категориям.",
+    "desc_en": "An online guidance tool that provides real-time recommendations following AWS best practices.",
+    "key_points_ru": [
+      "5 категорий: Оптимизация затрат, Производительность, Безопасность, Отказоустойчивость, Квоты сервисов",
+      "Базовый план дает 7 бесплатных ключевых проверок безопасности и лимитов",
+      "Полный доступ ко всем сотням проверок открывается на планах Business и Enterprise Support"
+    ],
+    "key_points_en": [
+      "5 pillars: Cost Optimization, Performance, Security, Fault Tolerance, Service Quotas",
+      "Basic & Developer plans include 7 core security and service limit checks",
+      "Full access to hundreds of checks requires Business or Enterprise Support"
+    ]
+  },
+  "aws_budgets": {
+    "name": "AWS Budgets",
+    "category": "Billing & Cost Management",
+    "desc_ru": "Сервис для задания кастомных планов расходов и отправки проактивных уведомлений при риске превышения бюджета.",
+    "desc_en": "Service for setting custom cost and usage limits that alert you when costs exceed or are forecasted to exceed budgets.",
+    "key_points_ru": [
+      "Поддержка отслеживания фактических затрат и прогнозных значений (Forecasted charges)",
+      "Оповещения по email или через Amazon SNS при приближении к пороговым значениям",
+      "Возможность настройки автоматических действий (Budget Actions) при превышении лимита"
+    ],
+    "key_points_en": [
+      "Tracks actual expenditure as well as forecasted spending thresholds",
+      "Sends notifications via email or Amazon SNS when thresholds are breached",
+      "Can trigger automated Budget Actions (e.g., attach IAM deny policies or stop instances)"
+    ]
+  },
+  "aws_cost_explorer": {
+    "name": "AWS Cost Explorer",
+    "category": "Billing & Cost Analytics",
+    "desc_ru": "Инструмент визуализации, глубокого анализа и прогнозирования расходов и использования сервисов AWS за последние 12+ месяцев.",
+    "desc_en": "Interactive visualization tool to analyze, understand, and forecast AWS costs and usage patterns over time.",
+    "key_points_ru": [
+      "Построение графиков с фильтрацией по тегам, сервисам, регионам и типам использования",
+      "Прогнозирование будущих счетов на основе исторических данных за последние месяцы",
+      "Рекомендации по приобретению Savings Plans и Reserved Instances для оптимизации затрат"
+    ],
+    "key_points_en": [
+      "Custom graphical reports filtered by cost allocation tags, services, regions, and accounts",
+      "Forecasts future spending based on past consumption models",
+      "Offers automated recommendations for Savings Plans and Reserved Instances"
+    ]
+  },
+  "aws_pricing_calculator": {
+    "name": "AWS Pricing Calculator",
+    "category": "Billing & Pre-Deployment Planning",
+    "desc_ru": "Веб-калькулятор для предварительной оценки стоимости планируемой архитектуры AWS до развертывания ресурсов.",
+    "desc_en": "Web-based planning tool to create cost estimates for your prospective AWS architectures prior to deployment.",
+    "key_points_ru": [
+      "Позволяет моделировать сценарии и считать бюджет до запуска реальной инфраструктуры",
+      "Учитывает параметры инстансов, объемы трафика, типы хранилищ и регионы",
+      "Генерирует ссылки и PDF-отчеты со сметой для согласования с руководством"
+    ],
+    "key_points_en": [
+      "Simulates architectural costs prior to provisioning resources",
+      "Accounts for instance sizing, network transfer out, storage tiers, and region selection",
+      "Outputs shareable estimate links and summary documentation for stakeholder approval"
+    ]
+  },
+  "aws_support_plans": {
+    "name": "AWS Support Plans (Планы поддержки AWS)",
+    "category": "Support & SLA",
+    "desc_ru": "Четыре уровня технической и операционной поддержки AWS: Basic, Developer, Business, Enterprise On-Ramp и Enterprise.",
+    "desc_en": "Four tiers of technical support provided by AWS: Basic, Developer, Business, Enterprise On-Ramp, and Enterprise.",
+    "key_points_ru": [
+      "Basic: бесплатный, поддержка только биллинга, документация и 7 проверок Trusted Advisor",
+      "Developer: доступ по email в бизнес-часы, SLA 12-24ч для общих вопросов",
+      "Business: доступ 24/7 по телефону/чату, SLA < 1 часа при сбое 'Production system down', доступ к IEM за плату",
+      "Enterprise: SLA < 15 минут для бизнес-критичных сбоев, персональный Technical Account Manager (TAM), включенный IEM"
+    ],
+    "key_points_en": [
+      "Basic: free, billing/account support, documentation, 7 Trusted Advisor checks",
+      "Developer: business hours email access, 12-24h response time for general guidance",
+      "Business: 24/7 phone/chat/email, < 1 hour response for production system down, IEM for extra fee",
+      "Enterprise: < 15 min SLA for business-critical outages, designated TAM, included IEM"
+    ]
+  },
+  "aws_iam": {
+    "name": "AWS IAM (Identity and Access Management)",
+    "category": "Security & Access Control",
+    "desc_ru": "Сервис централизованного управления доступом и разрешениями к сервисам и ресурсам AWS.",
+    "desc_en": "Service that helps you securely control access to AWS resources with authentication and authorization.",
+    "key_points_ru": [
+      "Принцип наименьших привилегий (Least Privilege) — выдавать только минимально необходимые права",
+      "IAM Roles: временные учетные данные для инстансов EC2 и сервисов без жестко зашитых ключей в коде",
+      "Обязательное включение многофакторной аутентификации (MFA) для Root аккаунта"
+    ],
+    "key_points_en": [
+      "Principle of Least Privilege: grant only the permissions required to complete the task",
+      "IAM Roles: provide temporary credentials for EC2 and applications without hardcoded access keys",
+      "Mandatory enforcement of Multi-Factor Authentication (MFA) on the root user"
+    ]
+  },
+  "well_architected_framework": {
+    "name": "AWS Well-Architected Framework",
+    "category": "Architecture Best Practices",
+    "desc_ru": "Методология AWS из 6 ключевых столпов (Pillars) для построения безопасных, высокопроизводительных и устойчивых систем.",
+    "desc_en": "Set of architectural best practices across 6 pillars for designing secure, resilient, and cost-efficient cloud systems.",
+    "key_points_ru": [
+      "Operational Excellence (Операционное совершенство): автоматизация процессов, мониторинг и эволюция",
+      "Security (Безопасность): защита данных, шифрование и контроль доступа на всех уровнях",
+      "Reliability (Надежность): самовосстановление, Multi-AZ дизайн и защита от сбоев",
+      "Performance Efficiency (Эффективность производительности): оптимальный выбор типов ресурсов и технологий",
+      "Cost Optimization (Оптимизация затрат): устранение лишних расходов и оплата только нужного",
+      "Sustainability (Экологическая устойчивость): минимизация углеродного следа и нагрузки на окружающую среду"
+    ],
+    "key_points_en": [
+      "Operational Excellence: running workloads, continuous improvement, and automation",
+      "Security: protecting data, confidentiality, encryption at rest and in transit",
+      "Reliability: automatic recovery from disruptions, Multi-AZ architectures, scaling",
+      "Performance Efficiency: choosing appropriate resource types and evolving with technology",
+      "Cost Optimization: avoiding unnecessary expenditures and matching demand with supply",
+      "Sustainability: minimizing environmental impacts and energy footprints"
+    ]
+  }
+}

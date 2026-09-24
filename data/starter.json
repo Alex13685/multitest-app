@@ -1,0 +1,418 @@
+[
+  {
+    "id": "clf_tech_001",
+    "domain": "technology",
+    "difficulty": 2,
+    "q": {
+      "en": "A company requires dedicated physical servers for regulatory compliance and needs to bring its own socket-based server licenses. Which Amazon EC2 pricing/deployment option meets these requirements?",
+      "ru": "Компании требуются выделенные физические серверы для соблюдения требований регуляторов, а также возможность использовать собственные серверные лицензии с привязкой к физическим сокетам. Какой вариант Amazon EC2 соответствует этим требованиям?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Dedicated Instances", "ru": "Dedicated Instances" },
+        "why_incorrect": {
+          "en": "Dedicated Instances run on single-tenant hardware but do not provide host-level visibility or control over physical sockets and cores required for BYOL licensing.",
+          "ru": "Dedicated Instances работают на изолированном оборудовании, но не дают видимости уровня хоста и контроля над физическими сокетами и ядрами, необходимыми для BYOL-лицензий."
+        }
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "Dedicated Hosts", "ru": "Dedicated Hosts" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "Spot Instances", "ru": "Spot Instances" },
+        "why_incorrect": {
+          "en": "Spot Instances are unused EC2 capacity offered at steep discounts, but they run on shared hardware and can be interrupted with 2 minutes notice.",
+          "ru": "Spot Instances используют невостребованные мощности со скидкой, но работают на общем оборудовании и могут быть отозваны с предупреждением за 2 минуты."
+        }
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "Reserved Instances", "ru": "Reserved Instances" },
+        "why_incorrect": {
+          "en": "Reserved Instances are a billing discount mechanism, not an infrastructure tenancy model. Standard RIs run on multi-tenant hardware.",
+          "ru": "Reserved Instances — это скидочный механизм биллинга за долгосрочное обязательство, а не модель физической изоляции оборудования."
+        }
+      }
+    ],
+    "correct_ids": ["opt_b"],
+    "services": [
+      "ec2_dedicated_hosts",
+      "ec2_dedicated_instances",
+      "ec2_spot_instances",
+      "ec2_reserved_instances",
+      "amazon_ec2"
+    ],
+    "explanation": {
+      "summary_ru": "Amazon EC2 Dedicated Hosts предоставляют выделенный физический сервер с контролем над физическими сокетами и ядрами для BYOL.",
+      "summary_en": "Amazon EC2 Dedicated Hosts provide a physical server fully dedicated for your use, supporting socket-bound BYOL licenses.",
+      "detailed_ru": "Dedicated Hosts дают физический контроль над сервером и позволяют использовать собственные лицензии на ПО (Microsoft Windows Server, SQL Server), привязанные к физическим сокетам/ядрам. Dedicated Instances изолируют «железо», но не дают контроля над сокетами.",
+      "detailed_en": "An Amazon EC2 Dedicated Host gives you full visibility and placement control over physical sockets and cores, which is required for Bring Your Own License (BYOL) compliance."
+    }
+  },
+  {
+    "id": "clf_sec_002",
+    "domain": "security",
+    "difficulty": 2,
+    "q": {
+      "en": "Which AWS service enables automated security assessments to improve the security and compliance of applications deployed on Amazon EC2 and container images in Amazon ECR?",
+      "ru": "Какой сервис AWS обеспечивает автоматическую оценку безопасности для улучшения защиты и соответствия приложений, развернутых на Amazon EC2, и образов контейнеров в Amazon ECR?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Amazon Inspector", "ru": "Amazon Inspector" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "AWS Shield", "ru": "AWS Shield" },
+        "why_incorrect": {
+          "en": "AWS Shield protects against Distributed Denial of Service (DDoS) attacks, not OS vulnerabilities or package CVEs.",
+          "ru": "AWS Shield предназначен исключительно для защиты от DDoS-атак, а не для поиска уязвимостей в пакетах ОС или контейнерах."
+        }
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "Amazon GuardDuty", "ru": "Amazon GuardDuty" },
+        "why_incorrect": {
+          "en": "GuardDuty is an intelligent threat detection engine analyzing event streams (CloudTrail, DNS, VPC Flow Logs), but it does not audit installed software for known CVE vulnerabilities.",
+          "ru": "GuardDuty выявляет аномальное вредоносное поведение по логам, но не сканирует установленные пакеты ПО на известные уязвимости CVE."
+        }
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "AWS WAF", "ru": "AWS WAF" },
+        "why_incorrect": {
+          "en": "AWS WAF inspects HTTP/HTTPS web requests at Layer 7 to block attacks like SQL injection and XSS, rather than evaluating host-level compliance.",
+          "ru": "WAF фильтрует веб-трафик на 7 уровне (SQLi, XSS), а не инспектирует внутренности хостов или реестры контейнеров."
+        }
+      }
+    ],
+    "correct_ids": ["opt_a"],
+    "services": [
+      "amazon_inspector",
+      "aws_shield",
+      "amazon_guardduty",
+      "aws_waf"
+    ],
+    "explanation": {
+      "summary_ru": "Amazon Inspector автоматически сканирует рабочие нагрузки на наличие уязвимостей ПО и сетевой доступности.",
+      "summary_en": "Amazon Inspector automatically scans workloads for software vulnerabilities and unintended network exposure.",
+      "detailed_ru": "Amazon Inspector непрерывно сканирует инстансы EC2, образы ECR и функции Lambda на известные уязвимости (CVE) и соответствие передовым практикам безопасности.",
+      "detailed_en": "Amazon Inspector is an automated vulnerability management service that continually scans AWS workloads for software vulnerabilities and unintended network exposure across EC2, ECR, and Lambda."
+    }
+  },
+  {
+    "id": "clf_sec_003",
+    "domain": "security",
+    "difficulty": 1,
+    "q": {
+      "en": "According to the AWS Shared Responsibility Model, which of the following is a customer responsibility when running Amazon EC2 instances? (Select TWO)",
+      "ru": "Согласно Модели разделенной ответственности AWS (Shared Responsibility Model), что из перечисленного является обязанностью клиента при запуске инстансов Amazon EC2? (Выберите ДВА варианта)"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Patching the guest operating system", "ru": "Установка обновлений безопасности (патчинг) гостевой ОС" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "Decommissioning defective physical storage drives", "ru": "Утилизация неисправных физических накопителей" },
+        "why_incorrect": {
+          "en": "AWS manages physical hardware decommissioning and destruction according to DoD standards (Security OF the Cloud).",
+          "ru": "AWS отвечает за физическое оборудование дата-центров и уничтожение сбойных дисков (безопасность «OF the Cloud»)."
+        }
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "Configuring EC2 Security Groups and network firewalls", "ru": "Настройка групп безопасности (Security Groups) и сетевых правил" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "Patching the underlying Xen/KVM hypervisor", "ru": "Патчинг базового гипервизора Xen/Nitro" },
+        "why_incorrect": {
+          "en": "AWS is responsible for patching and maintaining the virtualization hypervisors and host hardware.",
+          "ru": "AWS полностью отвечает за поддержание и обновление инфраструктуры виртуализации и гипервизоров."
+        }
+      }
+    ],
+    "correct_ids": ["opt_a", "opt_c"],
+    "services": [
+      "amazon_ec2",
+      "aws_iam"
+    ],
+    "explanation": {
+      "summary_ru": "Клиент отвечает за безопасность «В облаке» (IN the Cloud): гостевую ОС, патчи и конфигурацию сетевых экранов (Security Groups).",
+      "summary_en": "The customer is responsible for Security 'IN the Cloud', including guest OS patching and firewall configurations.",
+      "detailed_ru": "В модели IaaS (Amazon EC2) AWS отвечает за безопасность физической инфраструктуры, дата-центров и гипервизора. Клиент несет полную ответственность за данные, патчи гостевой ОС, прикладное ПО и правила групп безопасности.",
+      "detailed_en": "Under the AWS Shared Responsibility Model for IaaS, AWS manages hypervisors and facilities, while customers maintain the guest OS, application software, and firewall/security group rules."
+    }
+  },
+  {
+    "id": "clf_bill_004",
+    "domain": "billing",
+    "difficulty": 1,
+    "q": {
+      "en": "A company wants to set up automated alerts when their monthly AWS estimated charges exceed $500. Which AWS tool should they use?",
+      "ru": "Компания хочет настроить автоматические уведомления, когда их прогнозируемые ежемесячные расходы на AWS превысят $500. Какой инструмент AWS следует использовать?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "AWS Budgets", "ru": "AWS Budgets" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "AWS Cost Explorer", "ru": "AWS Cost Explorer" },
+        "why_incorrect": {
+          "en": "Cost Explorer is an analytics tool used to visualize, understand, and forecast costs over time, but it does not send proactive alert notifications on threshold breaches.",
+          "ru": "Cost Explorer служит для визуализации, фильтрации и анализа исторических затрат, но не является сервисом отправки алертов по порогу."
+        }
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "AWS Pricing Calculator", "ru": "AWS Pricing Calculator" },
+        "why_incorrect": {
+          "en": "Pricing Calculator is a pre-deployment planning tool to estimate architectural costs, not a live spending monitor.",
+          "ru": "Pricing Calculator используется для предварительной оценки стоимости планируемой архитектуры до развертывания ресурсов."
+        }
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "AWS CloudTrail", "ru": "AWS CloudTrail" },
+        "why_incorrect": {
+          "en": "CloudTrail audits API calls and management events, not dollar-denominated expenditure limits.",
+          "ru": "CloudTrail протоколирует вызовы API и действия пользователей, а не финансовые лимиты биллинга."
+        }
+      }
+    ],
+    "correct_ids": ["opt_a"],
+    "services": [
+      "aws_budgets",
+      "aws_cost_explorer",
+      "aws_pricing_calculator",
+      "aws_cloudtrail"
+    ],
+    "explanation": {
+      "summary_ru": "AWS Budgets позволяет задавать кастомные бюджеты и отправлять email/SNS алерты при превышении прогноза или факта.",
+      "summary_en": "AWS Budgets allows setting custom cost and usage limits with proactive alerts via email or SNS.",
+      "detailed_ru": "AWS Budgets дает возможность отслеживать расходы и использование ресурсов. Можно настроить оповещения при превышении фактических или прогнозируемых (forecasted) затрат над установленным лимитом.",
+      "detailed_en": "AWS Budgets gives you the ability to set custom budgets that alert you when your costs or usage exceed (or are forecasted to exceed) your budgeted amount."
+    }
+  },
+  {
+    "id": "clf_cloud_005",
+    "domain": "cloud_concepts",
+    "difficulty": 1,
+    "q": {
+      "en": "Which architectural pillar of the AWS Well-Architected Framework focuses on designing workloads that recover automatically from failures and dynamically scale to meet demand?",
+      "ru": "Какой столп (pillar) методологии AWS Well-Architected Framework фокусируется на проектировании систем, способных автоматически восстанавливаться после сбоев и динамически масштабироваться при изменении нагрузки?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Operational Excellence", "ru": "Operational Excellence (Операционное совершенство)" },
+        "why_incorrect": {
+          "en": "Operational Excellence focuses on running and monitoring systems to deliver business value and continually improving processes.",
+          "ru": "Operational Excellence сосредоточен на поддержке рабочих процессов, автоматизации релизов и постоянном улучшении процедур."
+        }
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "Reliability", "ru": "Reliability (Надежность)" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "Performance Efficiency", "ru": "Performance Efficiency (Эффективность производительности)" },
+        "why_incorrect": {
+          "en": "Performance Efficiency focuses on structured resource selection and maintaining efficiency as technology evolves.",
+          "ru": "Performance Efficiency нацелен на оптимальный выбор вычислительных ресурсов и эффективное сохранение производительности."
+        }
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "Cost Optimization", "ru": "Cost Optimization (Оптимизация затрат)" },
+        "why_incorrect": {
+          "en": "Cost Optimization focuses on avoiding unnecessary spending and matching supply with demand.",
+          "ru": "Cost Optimization ориентирован на устранение лишних расходов и оплату только необходимого объема мощностей."
+        }
+      }
+    ],
+    "correct_ids": ["opt_b"],
+    "services": [
+      "well_architected_framework",
+      "amazon_cloudwatch",
+      "amazon_ec2"
+    ],
+    "explanation": {
+      "summary_ru": "Столп Надежности (Reliability) включает самовосстановление, распределение по нескольким AZ и тестирование аварийного восстановления.",
+      "summary_en": "The Reliability pillar encompasses automatic recovery, Multi-AZ design, and failure handling.",
+      "detailed_ru": "Well-Architected Reliability Pillar включает способность системы предотвращать сбои и быстро восстанавливаться после них (например, через Auto Scaling, Multi-AZ развертывание и резервное копирование).",
+      "detailed_en": "The Reliability pillar focuses on workloads performing their intended functions correctly and consistently, including recovering automatically from disruptions."
+    }
+  },
+  {
+    "id": "clf_tech_006",
+    "domain": "technology",
+    "difficulty": 1,
+    "q": {
+      "en": "A company needs an object storage solution that automatically moves data to the most cost-effective access tier when access patterns change, without performance impact or retrieval fees. Which Amazon S3 storage class should they use?",
+      "ru": "Компании требуется объектное хранилище, которое автоматически перемещает данные на наиболее экономичный уровень хранения при изменении частоты обращений, без снижения производительности и без платы за извлечение. Какой класс хранилища Amazon S3 следует выбрать?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "S3 Standard", "ru": "S3 Standard" },
+        "why_incorrect": {
+          "en": "S3 Standard is meant for frequently accessed data and has a fixed pricing model with no automated tier transitions.",
+          "ru": "S3 Standard предназначен для часто используемых данных и не имеет автоматического понижения стоимости при редких обращениях."
+        }
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "S3 Glacier Flexible Retrieval", "ru": "S3 Glacier Flexible Retrieval" },
+        "why_incorrect": {
+          "en": "Glacier is for archival data requiring minutes to hours for retrieval and charges retrieval fees.",
+          "ru": "Glacier предназначен для архивов, требует времени на извлечение от минут до часов и взимает плату за чтение."
+        }
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "S3 Intelligent-Tiering", "ru": "S3 Intelligent-Tiering" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "S3 One Zone-IA", "ru": "S3 One Zone-IA" },
+        "why_incorrect": {
+          "en": "One Zone-IA stores data in a single AZ with retrieval fees and no automatic tier migration.",
+          "ru": "One Zone-IA хранит данные в одной зоне доступности, взимает плату за извлечение и не меняет уровни автоматически."
+        }
+      }
+    ],
+    "correct_ids": ["opt_c"],
+    "services": [
+      "amazon_s3",
+      "s3_intelligent_tiering",
+      "s3_glacier"
+    ],
+    "explanation": {
+      "summary_ru": "S3 Intelligent-Tiering автоматически перемещает объекты между частым и редким уровнями доступа для экономии без платы за извлечение.",
+      "summary_en": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns with zero retrieval fees.",
+      "detailed_ru": "S3 Intelligent-Tiering — единственный облачный класс хранилища, который обеспечивает автоматическую экономию за счет перемещения данных между уровнями доступа при изменении паттернов использования без операционных накладных расходов.",
+      "detailed_en": "Amazon S3 Intelligent-Tiering is designed to optimize storage costs by automatically moving data to the most cost-effective tier when access patterns change, without operational overhead or retrieval charges."
+    }
+  },
+  {
+    "id": "clf_sec_007",
+    "domain": "security",
+    "difficulty": 2,
+    "q": {
+      "en": "Which AWS service records API calls and tracks user activity, allowing an administrator to identify who terminated an Amazon EC2 instance last week?",
+      "ru": "Какой сервис AWS протоколирует вызовы API и действия пользователей, позволяя администратору выяснить, кто именно остановил инстанс Amazon EC2 на прошлой неделе?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Amazon CloudWatch", "ru": "Amazon CloudWatch" },
+        "why_incorrect": {
+          "en": "CloudWatch monitors operational metrics (CPU, memory, logs), but does not record API identity or caller history for AWS management events.",
+          "ru": "CloudWatch собирает технические метрики и логи приложений, но не ведет аудит авторства вызовов API консоли или SDK."
+        }
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "AWS CloudTrail", "ru": "AWS CloudTrail" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "AWS Config", "ru": "AWS Config" },
+        "why_incorrect": {
+          "en": "AWS Config tracks configuration changes over time, but the authoritative log of the specific API call ('TerminateInstances') and caller identity is recorded by CloudTrail.",
+          "ru": "AWS Config отслеживает историю состояний и конфигураций ресурсов, но сам журнал вызова API с указанием пользователя хранится в CloudTrail."
+        }
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "AWS Trusted Advisor", "ru": "AWS Trusted Advisor" },
+        "why_incorrect": {
+          "en": "Trusted Advisor provides recommendations for cost optimization, security, and performance, but is not an event auditing system.",
+          "ru": "Trusted Advisor дает рекомендации по оптимизации затрат и безопасности, но не протоколирует действия пользователей."
+        }
+      }
+    ],
+    "correct_ids": ["opt_b"],
+    "services": [
+      "aws_cloudtrail",
+      "amazon_cloudwatch",
+      "aws_config",
+      "aws_trusted_advisor"
+    ],
+    "explanation": {
+      "summary_ru": "AWS CloudTrail отвечает на вопросы: Кто сделал вызов, Когда, Откуда и с какими параметрами (API Auditing).",
+      "summary_en": "AWS CloudTrail captures management events and API calls across the AWS infrastructure.",
+      "detailed_ru": "CloudTrail регистрирует все вызовы API в аккаунте AWS, включая имя пользователя IAM, IP-адрес источника, время запроса и параметры команды (например, StopInstances или TerminateInstances).",
+      "detailed_en": "AWS CloudTrail enables governance, compliance, and operational and risk auditing of your AWS account by recording actions taken by a user, role, or an AWS service."
+    }
+  },
+  {
+    "id": "clf_bill_008",
+    "domain": "billing",
+    "difficulty": 2,
+    "q": {
+      "en": "Which AWS support plan provides access to Infrastructure Event Management (IEM) for an additional fee, and guarantees an architecture response time of under 1 hour for production system down?",
+      "ru": "Какой план поддержки AWS включает доступ к программе Infrastructure Event Management (IEM) за отдельную плату и гарантирует время ответа менее 1 часа при сбое продуктивной системы (Production system down)?"
+    },
+    "options": [
+      {
+        "id": "opt_a",
+        "text": { "en": "Basic Support Plan", "ru": "Basic Support Plan" },
+        "why_incorrect": {
+          "en": "Basic Support only includes billing and account support, documentation, and Trusted Advisor core checks. No technical support cases.",
+          "ru": "Basic план дает только поддержку биллинга, доступ к документации и 7 базовым проверкам Trusted Advisor без тикетов в техподдержку."
+        }
+      },
+      {
+        "id": "opt_b",
+        "text": { "en": "Developer Support Plan", "ru": "Developer Support Plan" },
+        "why_incorrect": {
+          "en": "Developer Support only covers business hours email access with a 12-hour response time for system impairment. No IEM.",
+          "ru": "Developer план предоставляет поддержку только в рабочие часы по email с ответом до 12 часов и не включает IEM."
+        }
+      },
+      {
+        "id": "opt_c",
+        "text": { "en": "Business Support Plan", "ru": "Business Support Plan" },
+        "why_incorrect": null
+      },
+      {
+        "id": "opt_d",
+        "text": { "en": "Enterprise On-Ramp Support Plan", "ru": "Enterprise On-Ramp Support Plan" },
+        "why_incorrect": {
+          "en": "Enterprise On-Ramp includes 1 IEM event per year included in the base price (not for an additional fee), and has a 30-minute SLA for business-critical events.",
+          "ru": "Enterprise On-Ramp включает 1 сессию IEM в год в базовую стоимость (а не за доп. плату) и имеет SLA 30 минут."
+        }
+      }
+    ],
+    "correct_ids": ["opt_c"],
+    "services": [
+      "aws_support_plans",
+      "aws_trusted_advisor"
+    ],
+    "explanation": {
+      "summary_ru": "Business Support гарантирует реакцию < 1 часа при падении продуктивной среды и доступ к IEM за отдельную плату.",
+      "summary_en": "AWS Business Support guarantees < 1 hour response for production system down, with IEM available for an additional fee.",
+      "detailed_ru": "Business Support Plan предоставляет круглосуточный доступ 24/7 по телефону, чату и тикетам. SLA при 'Production system down' составляет < 1 часа. IEM (поддержка масштабных запусков) доступен для заказа за дополнительную плату. В Enterprise Support IEM уже включен бесплатно.",
+      "detailed_en": "The AWS Business Support plan offers 24/7 phone, chat, and email support, < 1 hour response for production system down, full Trusted Advisor checks, and Infrastructure Event Management (IEM) for an additional fee."
+    }
+  }
+]

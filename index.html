@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ff9900">
+  <meta name="description" content="Offline-first AWS Certified Cloud Practitioner (CLF-C02) PWA Trainer with Bonso explanations and Leitner repetition">
+  <title>AWS CLF-C02 Personal Trainer</title>
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon.svg">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <img src="./icons/icon.svg" alt="AWS Trainer Logo" class="brand-icon">
+        <div class="brand-title">
+          AWS CLF <span class="badge-version">C02</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- Sync Status Button -->
+        <button id="btn-sync" class="btn-icon" title="Синхронизация с Google Drive" aria-label="Синхронизация">
+          <span id="sync-dot" class="sync-indicator offline"></span>
+          <span id="sync-text">Sync</span>
+        </button>
+        <!-- Language Switcher EN / RU -->
+        <button id="btn-lang" class="btn-icon btn-lang" title="Переключить язык (EN/RU)">
+          <span id="lang-en" class="active-lang">EN</span> / <span id="lang-ru">RU</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="app-nav">
+      <button class="nav-tab active" data-screen="screen-trainer">
+        <span class="nav-icon">🎯</span> <span data-i18n="nav_trainer">Тренажер</span>
+      </button>
+      <button class="nav-tab" data-screen="screen-exam">
+        <span class="nav-icon">⏱️</span> <span data-i18n="nav_exam">Экзамен</span>
+      </button>
+      <button class="nav-tab" data-screen="screen-import">
+        <span class="nav-icon">📥</span> <span data-i18n="nav_import">Импорт</span>
+      </button>
+      <button class="nav-tab" data-screen="screen-stats">
+        <span class="nav-icon">📊</span> <span data-i18n="nav_stats">Прогресс</span>
+      </button>
+    </nav>
+
+    <!-- Main Screens View -->
+    <main class="app-content">
+
+      <!-- SCREEN 1: TRAINER (QUIZ / LEITNER) -->
+      <section id="screen-trainer" class="screen-view active">
+        <!-- Meta Bar -->
+        <div class="meta-bar">
+          <div class="badge-group">
+            <span id="badge-domain" class="badge badge-domain">Technology</span>
+            <span id="badge-box" class="badge badge-box" data-box="0">Box 0</span>
+            <span id="badge-stats" class="badge">🔥 0 / 0</span>
+          </div>
+          <button id="btn-open-services" class="btn-services-toggle" style="display: none;">
+            <span>☁️</span> <span data-i18n="btn_services">Сервисы AWS</span>
+          </button>
+        </div>
+
+        <!-- Question Card -->
+        <div class="card-question">
+          <div id="question-text" class="question-text">
+            Загрузка вопросов...
+          </div>
+          <div id="question-hint" class="question-prompt-hint">
+            <!-- Dynamically populated: Select ONE or Select TWO -->
+          </div>
+
+          <!-- Options List -->
+          <div id="options-container" class="options-list">
+            <!-- Dynamic option items -->
+          </div>
+
+          <!-- Actions -->
+          <div class="quiz-actions">
+            <button id="btn-submit-answer" class="btn-primary" disabled>
+              <span data-i18n="btn_submit">Ответить</span>
+            </button>
+            <button id="btn-next-question" class="btn-primary" style="display: none;">
+              <span data-i18n="btn_next">Следующий вопрос ➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bonso Explanation Box -->
+        <div id="explanation-container" class="card-explanation" style="display: none;">
+          <div id="explanation-header" class="explanation-header">
+            <!-- Correct / Incorrect headline -->
+          </div>
+          <div id="leitner-feedback" class="leitner-result-toast">
+            <!-- Feedback on box transition: Box 0 -> Box 1 -->
+          </div>
+          <div id="explanation-summary" class="explanation-summary">
+            <!-- Summary -->
+          </div>
+          <div id="explanation-detailed" class="explanation-detailed">
+            <!-- Detailed -->
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: EXAM SIMULATOR -->
+      <section id="screen-exam" class="screen-view">
+        <div id="exam-welcome" class="card-question">
+          <h2 style="margin-bottom: 12px; color: var(--aws-orange);">AWS CLF-C02 Exam Simulator</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">
+            Симулятор официального сертификационного экзамена AWS Certified Cloud Practitioner.
+          </p>
+          <ul style="color: var(--text-secondary); margin-bottom: 20px; padding-left: 20px; line-height: 1.8;">
+            <li><strong>65 вопросов</strong> со случайным перемешиванием.</li>
+            <li><strong>90 минут</strong> обратного отсчета.</li>
+            <li>Шкала оценивания AWS: <strong>от 100 до 1000 баллов</strong> (проходной балл <strong>700</strong>).</li>
+            <li>Сохранение текущей сессии в <code>sessionStorage</code> при случайной перезагрузке страницы.</li>
+          </ul>
+          <div style="margin-bottom: 16px; font-size: 14px; color: var(--text-muted);">
+            Доступно вопросов в базе: <strong id="exam-db-count">0</strong>
+          </div>
+          <button id="btn-start-exam" class="btn-primary">
+            🚀 Начать симуляцию экзамена
+          </button>
+        </div>
+
+        <div id="exam-active-container" style="display: none; flex-direction: column; gap: 16px;">
+          <!-- Exam Header Bar -->
+          <div class="exam-header-bar">
+            <div id="exam-timer" class="exam-timer">
+              ⏱️ <span id="timer-display">90:00</span>
+            </div>
+            <div id="exam-progress-counter" class="exam-progress">
+              Вопрос 1 из 65
+            </div>
+            <button id="btn-finish-exam-early" class="btn-secondary" style="min-height: 38px; padding: 0 12px; font-size: 13px;">
+              Завершить
+            </button>
+          </div>
+
+          <!-- Question Map Grid -->
+          <div id="exam-map" class="exam-grid-map">
+            <!-- 65 mini buttons -->
+          </div>
+
+          <!-- Exam Question Card -->
+          <div class="card-question">
+            <div id="exam-question-domain" class="badge badge-domain" style="margin-bottom: 8px;">Domain</div>
+            <div id="exam-question-text" class="question-text">Текст вопроса...</div>
+            <div id="exam-question-hint" class="question-prompt-hint">Выберите 1 вариант</div>
+            <div id="exam-options-container" class="options-list"></div>
+            
+            <div class="quiz-actions" style="margin-top: 20px;">
+              <button id="btn-exam-prev" class="btn-secondary">⬅ Назад</button>
+              <button id="btn-exam-next" class="btn-primary">Вперед ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exam Result Summary Card -->
+        <div id="exam-results-container" class="card-question" style="display: none;">
+          <h2 id="exam-result-title" style="margin-bottom: 8px;">Результат экзамена</h2>
+          <div id="exam-result-score" style="font-size: 38px; font-weight: 900; color: var(--aws-orange); margin-bottom: 12px;">
+            780 / 1000
+          </div>
+          <div id="exam-result-status" class="badge" style="font-size: 15px; padding: 6px 14px; margin-bottom: 16px;">
+            PASSED
+          </div>
+          <div id="exam-domain-breakdown" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <!-- Domain performance bars -->
+          </div>
+          <button id="btn-restart-exam" class="btn-primary">
+            🔄 Пройти заново
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: IMPORT & QUESTIONS MANAGEMENT -->
+      <section id="screen-import" class="screen-view">
+        <div class="import-section">
+          <div class="card-question">
+            <h3 style="margin-bottom: 8px;">Импорт вопросов (JSON)</h3>
+            <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 14px;">
+              Вставьте JSON-массив с вопросами (сгенерированными Claude, Gemini или ChatGPT). Встроенный санитайзер автоматически очистит теги <code>```json</code>, исправит синтаксис и срежет оборванный конец.
+            </p>
+            <textarea id="import-json-input" class="import-textarea" placeholder='[&#10;  {&#10;    "id": "clf_sec_005",&#10;    "domain": "security",&#10;    "q": { "en": "...", "ru": "..." },&#10;    ...&#10;  }&#10;]'></textarea>
+            
+            <div class="quiz-actions" style="flex-wrap: wrap;">
+              <button id="btn-run-import" class="btn-primary">
+                📥 Импортировать вопросы
+              </button>
+              <button id="btn-load-starter" class="btn-secondary">
+                📦 Загрузить 8 стартовых
+              </button>
+            </div>
+          </div>
+
+          <!-- Import Log & Diagnostics -->
+          <div class="card-question">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="color: var(--text-secondary);">Журнал импорта</h4>
+              <button id="btn-clear-log" class="btn-secondary" style="min-height: 32px; padding: 0 10px; font-size: 12px;">Очистить лог</button>
+            </div>
+            <pre id="import-log" class="import-log">Ожидание импорта...</pre>
+          </div>
+
+          <!-- Danger / Database Control -->
+          <div class="card-question">
+            <h4 style="color: var(--error-text); margin-bottom: 8px;">Управление базой данных</h4>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button id="btn-export-json" class="btn-secondary">📤 Экспорт базы в JSON</button>
+              <button id="btn-reset-leitner" class="btn-secondary">🔄 Сбросить ящики Лейтнера</button>
+              <button id="btn-purge-db" class="btn-secondary" style="border-color: var(--error-border); color: var(--error-text);">🗑️ Полностью удалить все</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: STATS & SYNC SETTINGS -->
+      <section id="screen-stats" class="screen-view">
+        <!-- Overview Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div id="stat-total-q" class="stat-value">0</div>
+            <div class="stat-label">Всего вопросов</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-mastered" class="stat-value" style="color: var(--success-text);">0</div>
+            <div class="stat-label">Выучено (Box 4-5)</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-accuracy" class="stat-value" style="color: var(--info-text);">0%</div>
+            <div class="stat-label">Точность ответов</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-in-progress" class="stat-value" style="color: var(--box-1);">0</div>
+            <div class="stat-label">В работе (Box 0-3)</div>
+          </div>
+        </div>
+
+        <!-- Leitner Distribution -->
+        <div class="card-question">
+          <h3 style="margin-bottom: 4px;">Система Лейтнера (Ящики 0–5)</h3>
+          <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
+            Вопросы из ящиков 0 и 1 выдаются чаще всего, пока вы не закрепите материал.
+          </p>
+          <div class="leitner-boxes-grid">
+            <div class="box-column" style="border-top: 3px solid var(--box-0);">
+              <span class="box-title">BOX 0</span>
+              <span id="box-count-0" class="box-count">0</span>
+            </div>
+            <div class="box-column" style="border-top: 3px solid var(--box-1);">
+              <span class="box-title">BOX 1</span>
+              <span id="box-count-1" class="box-count">0</span>
+            </div>
+            <div class="box-column" style="border-top: 3px solid var(--box-2);">
+              <span class="box-title">BOX 2</span>
+              <span id="box-count-2" class="box-count">0</span>
+            </div>
+            <div class="box-column" style="border-top: 3px solid var(--box-3);">
+              <span class="box-title">BOX 3</span>
+              <span id="box-count-3" class="box-count">0</span>
+            </div>
+            <div class="box-column" style="border-top: 3px solid var(--box-4);">
+              <span class="box-title">BOX 4</span>
+              <span id="box-count-4" class="box-count">0</span>
+            </div>
+            <div class="box-column" style="border-top: 3px solid var(--box-5);">
+              <span class="box-title">BOX 5</span>
+              <span id="box-count-5" class="box-count">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Drive Sync Settings -->
+        <div class="settings-form">
+          <h3 style="color: var(--aws-orange);">Синхронизация с Google Drive</h3>
+          <p style="color: var(--text-secondary); font-size: 14px;">
+            Позволяет проходить тесты с телефона и компьютера с сохранением единого прогресса в вашем личном файле <code>trainer_state.json</code>.
+          </p>
+          <div class="form-group">
+            <label class="form-label" for="gas-endpoint-input">URL веб-приложения Google Apps Script:</label>
+            <input type="url" id="gas-endpoint-input" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+            <span class="form-hint">Разверните скрипт из папки <code>server/google_sync.js</code> как Web App.</span>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button id="btn-save-gas-url" class="btn-primary" style="flex: 1;">Сохранить URL</button>
+            <button id="btn-trigger-sync" class="btn-secondary">Синхронизировать сейчас</button>
+          </div>
+          <div id="sync-status-details" style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
+            Статус: Синхронизация не настроена
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM SHEET: AWS SERVICES DRAWER -->
+    <div id="services-backdrop" class="bottom-sheet-backdrop"></div>
+    <div id="services-sheet" class="bottom-sheet">
+      <div class="sheet-handle-bar">
+        <div class="sheet-handle"></div>
+      </div>
+      <div class="sheet-header">
+        <div class="sheet-title">
+          <span>☁️</span> <span>AWS Services in this Question</span>
+        </div>
+        <button id="btn-close-sheet" class="btn-icon" style="min-width: 36px; height: 36px; border: none;">✕</button>
+      </div>
+      <div id="services-sheet-content" class="sheet-content">
+        <!-- Dynamically rendered service cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS (Vanilla JS Modular) -->
+  <script src="./js/db.js"></script>
+  <script src="./js/leitner.js"></script>
+  <script src="./js/engine.js"></script>
+  <script src="./js/exam.js"></script>
+  <script src="./js/sync.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
