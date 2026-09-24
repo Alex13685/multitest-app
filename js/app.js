@@ -77,34 +77,55 @@ class AppController {
     this.bindEvents();
     this.updateLanguageUI();
     await this.loadServicesData();
+    await this.loadFlashcardsData();
 
-    // Initialize sub-engines
-    window.quizEngine = new window.QuizEngine();
-    window.examSimulator = new window.ExamSimulator();
-    window.syncManager = new window.SyncManager();
+    // Initialize sub-engines safely
+    try {
+      window.quizEngine = new window.QuizEngine();
+    } catch (e) {
+      console.error('[App] QuizEngine init failed:', e);
+    }
+    try {
+      window.examSimulator = new window.ExamSimulator();
+    } catch (e) {
+      console.error('[App] ExamSimulator init failed:', e);
+    }
+    try {
+      window.syncManager = new window.SyncManager();
+    } catch (e) {
+      console.error('[App] SyncManager init failed:', e);
+    }
 
     // Initial check & non-destructive content refresh from starter.json
-    const existing = await window.dbManager.getAllQuestions();
-    if (existing.length === 0) {
-      await this.loadStarterQuestions(true);
-    } else {
-      try {
-        const res = await fetch('./data/starter.json');
-        if (res.ok) {
-          const starter = await res.json();
-          await window.dbManager.upsertQuestions(starter);
+    try {
+      const existing = await window.dbManager.getAllQuestions();
+      if (existing.length === 0) {
+        await this.loadStarterQuestions(true);
+      } else {
+        try {
+          const res = await fetch('./data/starter.json');
+          if (res.ok) {
+            const starter = await res.json();
+            await window.dbManager.upsertQuestions(starter);
+          }
+        } catch (e) {
+          console.warn('[App] Could not auto-refresh starter questions:', e);
         }
-      } catch (e) {
-        console.warn('[App] Could not auto-refresh starter questions:', e);
+        if (window.quizEngine) await window.quizEngine.loadQuizPool();
+        if (window.examSimulator) await window.examSimulator.updateAvailableCount();
+        await this.updateProgressStats();
       }
-      await window.quizEngine.loadQuizPool();
-      await window.examSimulator.updateAvailableCount();
-      await this.updateProgressStats();
+    } catch (e) {
+      console.error('[App] Database init failed:', e);
     }
 
     // Try auto-sync on launch if configured
-    if (window.syncManager.endpointUrl) {
-      window.syncManager.sync({ background: true });
+    try {
+      if (window.syncManager && window.syncManager.endpointUrl) {
+        window.syncManager.sync({ background: true });
+      }
+    } catch (e) {
+      console.warn('[App] Auto-sync failed:', e);
     }
   }
 
@@ -114,7 +135,6 @@ class AppController {
         navigator.serviceWorker.register('./sw.js')
           .then(reg => {
             console.log('[PWA] Service Worker registered with scope:', reg.scope);
-            // Check for updates on every launch
             reg.update();
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
@@ -134,21 +154,46 @@ class AppController {
   }
 
   bindEvents() {
-    // Nav tabs
+    // Nav tabs - event delegation for fast touch and click
+    const navBar = document.querySelector('.app-nav');
+    if (navBar) {
+      const onNavAction = (e) => {
+        const tab = e.target.closest('.nav-tab');
+        if (tab && tab.dataset.screen) {
+          e.preventDefault();
+          this.switchScreen(tab.dataset.screen);
+        }
+      };
+      navBar.addEventListener('click', onNavAction);
+      navBar.addEventListener('touchend', onNavAction, { passive: false });
+    }
+
+    // Direct fallback for each nav tab
     this.dom.navTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
+      tab.addEventListener('click', (e) => {
         const targetScreen = tab.dataset.screen;
-        this.switchScreen(targetScreen);
+        if (targetScreen) {
+          e.preventDefault();
+          this.switchScreen(targetScreen);
+        }
       });
     });
 
     // Language Toggle
-    this.dom.btnLang.addEventListener('click', () => this.toggleLanguage());
+    if (this.dom.btnLang) {
+      this.dom.btnLang.addEventListener('click', () => this.toggleLanguage());
+    }
 
     // Services Bottom Sheet
-    this.dom.btnOpenServices.addEventListener('click', () => this.openServicesSheet());
-    this.dom.btnCloseSheet.addEventListener('click', () => this.closeServicesSheet());
-    this.dom.sheetBackdrop.addEventListener('click', () => this.closeServicesSheet());
+    if (this.dom.btnOpenServices) {
+      this.dom.btnOpenServices.addEventListener('click', () => this.openServicesSheet());
+    }
+    if (this.dom.btnCloseSheet) {
+      this.dom.btnCloseSheet.addEventListener('click', () => this.closeServicesSheet());
+    }
+    if (this.dom.sheetBackdrop) {
+      this.dom.sheetBackdrop.addEventListener('click', () => this.closeServicesSheet());
+    }
 
     // Touch swipe down on bottom sheet
     this.setupSheetSwipeToClose();
@@ -167,15 +212,16 @@ class AppController {
     }
 
     // Import Actions
-    this.dom.btnRunImport.addEventListener('click', () => this.handleImport());
-    this.dom.btnLoadStarter.addEventListener('click', () => this.loadStarterQuestions(false));
-    this.dom.btnClearLog.addEventListener('click', () => { this.dom.importLog.textContent = 'Лог очищен.'; });
-    this.dom.btnExportJson.addEventListener('click', () => this.exportDatabaseToJson());
-    this.dom.btnResetLeitner.addEventListener('click', () => this.handleResetLeitner());
-    this.dom.btnPurgeDb.addEventListener('click', () => this.handlePurgeDatabase());
+    if (this.dom.btnRunImport) this.dom.btnRunImport.addEventListener('click', () => this.handleImport());
+    if (this.dom.btnLoadStarter) this.dom.btnLoadStarter.addEventListener('click', () => this.loadStarterQuestions(false));
+    if (this.dom.btnClearLog) this.dom.btnClearLog.addEventListener('click', () => { if (this.dom.importLog) this.dom.importLog.textContent = 'Лог очищен.'; });
+    if (this.dom.btnExportJson) this.dom.btnExportJson.addEventListener('click', () => this.exportDatabaseToJson());
+    if (this.dom.btnResetLeitner) this.dom.btnResetLeitner.addEventListener('click', () => this.handleResetLeitner());
+    if (this.dom.btnPurgeDb) this.dom.btnPurgeDb.addEventListener('click', () => this.handlePurgeDatabase());
   }
 
   switchScreen(screenId) {
+    if (!screenId) return;
     this.currentScreen = screenId;
 
     this.dom.navTabs.forEach(tab => {
@@ -186,22 +232,27 @@ class AppController {
       }
     });
 
-    this.dom.screens.forEach(screen => {
+    const screens = document.querySelectorAll('.screen-view');
+    screens.forEach(screen => {
       if (screen.id === screenId) {
         screen.classList.add('active');
+        screen.style.display = 'flex';
       } else {
         screen.classList.remove('active');
+        screen.style.display = 'none';
       }
     });
 
-    // Refresh specific screen contents
+    // Refresh specific screen contents safely
     if (screenId === 'screen-stats') {
-      this.updateProgressStats();
+      try { this.updateProgressStats(); } catch (err) { console.warn(err); }
     } else if (screenId === 'screen-exam') {
-      window.examSimulator.updateAvailableCount();
+      try { if (window.examSimulator) window.examSimulator.updateAvailableCount(); } catch (err) { console.warn(err); }
     } else if (screenId === 'screen-cards') {
-      this.renderNextFlashcard();
+      try { this.renderNextFlashcard(); } catch (err) { console.warn(err); }
     }
+
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   // --- LANGUAGE SWITCHING ---
@@ -233,6 +284,7 @@ class AppController {
     // Static text translations across nav tabs
     const i18n = {
       nav_trainer: isRu ? 'Тренажер' : 'Practice',
+      nav_cards: isRu ? 'Карточки' : 'Flashcards',
       nav_exam: isRu ? 'Экзамен' : 'Exam',
       nav_import: isRu ? 'Импорт' : 'Import',
       nav_stats: isRu ? 'Прогресс' : 'Stats',
@@ -269,41 +321,56 @@ class AppController {
     const lang = window.appLang || 'ru';
     this.dom.sheetContent.innerHTML = '';
 
-    // Collect all unique service keys from q.services
-    const serviceKeys = new Set(Array.isArray(q.services) ? q.services : []);
+    const serviceKeys = new Set();
+    const rawServices = Array.isArray(q.services) ? q.services : [];
 
-    // Also smartly scan option texts to auto-detect any AWS service mentioned in options
-    const knownKeys = Object.keys(this.servicesDb);
-    if (Array.isArray(q.options)) {
-      q.options.forEach(opt => {
-        const optText = ((opt.text && (opt.text.en || opt.text.ru)) || '').toLowerCase();
-        knownKeys.forEach(k => {
-          const sName = (this.servicesDb[k].name || '').toLowerCase();
-          // Match if option text contains service name or key
-          if (optText.includes(k.replace(/_/g, ' ')) || (sName && optText.includes(sName.replace(/amazon |aws /g, '')))) {
-            serviceKeys.add(k);
-          }
-        });
-      });
-    }
+    rawServices.forEach(s => {
+      if (!s) return;
+      const cleanKey = s.toLowerCase().trim();
+      if (this.servicesDb[cleanKey]) {
+        serviceKeys.add(cleanKey);
+      }
+    });
 
-    if (serviceKeys.size === 0) {
+    // Scan question text, explanation and options
+    const fullText = [
+      (q.question && (q.question.ru || q.question.en)) || '',
+      (q.explanation && (q.explanation.summary_ru || q.explanation.summary_en)) || '',
+      ...(Array.isArray(q.options) ? q.options.map(o => (o.text && (o.text.ru || o.text.en)) || '') : [])
+    ].join(' ').toLowerCase();
+
+    // Match known services
+    Object.keys(this.servicesDb).forEach(key => {
+      if (['ai', 'db', 'sec', 'net', 'mig', 'mgmt', 'cicd', 'cloud', 'compute', 'storage'].includes(key)) return;
+      const sObj = this.servicesDb[key];
+      const sName = (sObj.name || '').toLowerCase();
+      const sKeyClean = key.replace(/_/g, ' ');
+
+      if (fullText.includes(sKeyClean) || (sName.length > 5 && fullText.includes(sName.replace(/amazon |aws /g, '')))) {
+        serviceKeys.add(key);
+      }
+    });
+
+    // Render cards without duplicates
+    const renderedNames = new Set();
+    const validCards = [];
+
+    serviceKeys.forEach(k => {
+      const info = this.servicesDb[k];
+      if (!info || !info.desc_ru) return;
+      if (renderedNames.has(info.name)) return;
+      renderedNames.add(info.name);
+      validCards.push(info);
+    });
+
+    if (validCards.length === 0) {
       this.dom.sheetContent.innerHTML = `
-        <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
+        <div style="color: var(--text-secondary); text-align: center; padding: 24px 16px;">
           ${lang === 'ru' ? 'В этом вопросе нет привязанных сервисов AWS.' : 'No AWS services tagged in this question.'}
         </div>
       `;
     } else {
-      serviceKeys.forEach(serviceKey => {
-        const info = this.servicesDb[serviceKey] || {
-          name: serviceKey.toUpperCase().replace(/_/g, ' '),
-          category: 'AWS Service',
-          desc_ru: 'Подробная карточка находится в процессе наполнения.',
-          desc_en: 'Detailed service description coming soon.',
-          key_points_ru: [],
-          key_points_en: []
-        };
-
+      validCards.forEach(info => {
         const card = document.createElement('div');
         card.className = 'service-card';
 
@@ -341,40 +408,35 @@ class AppController {
     let startY = 0;
     let isDraggingHandle = false;
     const handleBar = document.querySelector('.sheet-handle-bar');
-    const header = document.querySelector('.sheet-header');
-
-    const handleTouchStart = (e) => {
-      startY = e.touches[0].clientY;
-      isDraggingHandle = true;
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isDraggingHandle) return;
-      const currentY = e.touches[0].clientY;
-      const diffY = currentY - startY;
-      // Close only if dragged downwards by more than 50px directly on handle or header
-      if (diffY > 50) {
-        isDraggingHandle = false;
-        this.closeServicesSheet();
-      }
-    };
-
-    const handleTouchEnd = () => {
-      isDraggingHandle = false;
-    };
+    const sheetContent = document.querySelector('.sheet-content');
 
     if (handleBar) {
-      handleBar.addEventListener('touchstart', handleTouchStart, { passive: true });
-      handleBar.addEventListener('touchmove', handleTouchMove, { passive: true });
-      handleBar.addEventListener('touchend', handleTouchEnd, { passive: true });
-      // Clicking the handle directly also toggles close
+      handleBar.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        isDraggingHandle = true;
+      }, { passive: true });
+
+      handleBar.addEventListener('touchmove', (e) => {
+        if (!isDraggingHandle) return;
+        const currentY = e.touches[0].clientY;
+        const diffY = currentY - startY;
+        if (diffY > 60) {
+          isDraggingHandle = false;
+          this.closeServicesSheet();
+        }
+      }, { passive: true });
+
+      handleBar.addEventListener('touchend', () => {
+        isDraggingHandle = false;
+      }, { passive: true });
+
       handleBar.addEventListener('click', () => this.closeServicesSheet());
     }
 
-    if (header) {
-      header.addEventListener('touchstart', handleTouchStart, { passive: true });
-      header.addEventListener('touchmove', handleTouchMove, { passive: true });
-      header.addEventListener('touchend', handleTouchEnd, { passive: true });
+    if (sheetContent) {
+      sheetContent.addEventListener('touchstart', () => {
+        isDraggingHandle = false;
+      }, { passive: true });
     }
   }
 

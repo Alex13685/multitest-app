@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clf-trainer-v4';
+const CACHE_NAME = 'clf-trainer-v6';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -19,7 +19,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW] Pre-caching offline assets');
+      console.log('[SW] Pre-caching offline assets for v6');
       return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => self.skipWaiting())
   );
@@ -40,34 +40,33 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Network-First with Cache Fallback for immediate updates when online
 self.addEventListener('fetch', (event) => {
-  // Ignore Google Apps Script or external API calls (sync handled separately)
+  // Ignore external API calls (Google Apps Script sync)
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch fresh copy in background to update cache (stale-while-revalidate for local files)
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {/* offline, ignore */});
-
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      });
-    })
+      })
+      .catch(() => {
+        // Offline: serve from cache
+        return caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+          return new Response('Offline content unavailable', { status: 503 });
+        });
+      })
   );
 });
