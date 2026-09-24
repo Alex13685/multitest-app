@@ -90,7 +90,22 @@ class AppController {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('[PWA] Service Worker registered with scope:', reg.scope))
+          .then(reg => {
+            console.log('[PWA] Service Worker registered with scope:', reg.scope);
+            // Check for updates on every launch
+            reg.update();
+            reg.addEventListener('updatefound', () => {
+              const newWorker = reg.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New version installed! Reloading...');
+                    window.location.reload();
+                  }
+                });
+              }
+            });
+          })
           .catch(err => console.warn('[PWA] Service Worker registration failed:', err));
       });
     }
@@ -287,20 +302,43 @@ class AppController {
 
   setupSheetSwipeToClose() {
     let startY = 0;
-    const sheet = this.dom.servicesSheet;
+    let isDraggingHandle = false;
+    const handleBar = document.querySelector('.sheet-handle-bar');
+    const header = document.querySelector('.sheet-header');
 
-    sheet.addEventListener('touchstart', (e) => {
+    const handleTouchStart = (e) => {
       startY = e.touches[0].clientY;
-    }, { passive: true });
+      isDraggingHandle = true;
+    };
 
-    sheet.addEventListener('touchmove', (e) => {
+    const handleTouchMove = (e) => {
+      if (!isDraggingHandle) return;
       const currentY = e.touches[0].clientY;
       const diffY = currentY - startY;
-      // If pulled down from top of scroll
-      if (diffY > 80 && sheet.scrollTop <= 0) {
+      // Close only if dragged downwards by more than 50px directly on handle or header
+      if (diffY > 50) {
+        isDraggingHandle = false;
         this.closeServicesSheet();
       }
-    }, { passive: true });
+    };
+
+    const handleTouchEnd = () => {
+      isDraggingHandle = false;
+    };
+
+    if (handleBar) {
+      handleBar.addEventListener('touchstart', handleTouchStart, { passive: true });
+      handleBar.addEventListener('touchmove', handleTouchMove, { passive: true });
+      handleBar.addEventListener('touchend', handleTouchEnd, { passive: true });
+      // Clicking the handle directly also toggles close
+      handleBar.addEventListener('click', () => this.closeServicesSheet());
+    }
+
+    if (header) {
+      header.addEventListener('touchstart', handleTouchStart, { passive: true });
+      header.addEventListener('touchmove', handleTouchMove, { passive: true });
+      header.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
   }
 
   // --- IMPORT & MANAGEMENT ---

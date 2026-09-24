@@ -600,25 +600,34 @@ body {
 
 .sheet-handle-bar {
   width: 100%;
-  padding: 12px 0 6px;
+  padding: 14px 0 8px;
   display: flex;
   justify-content: center;
+  align-items: center;
   cursor: grab;
+  touch-action: none;
+  user-select: none;
 }
 
 .sheet-handle {
-  width: 44px;
-  height: 5px;
+  width: 52px;
+  height: 6px;
   border-radius: var(--radius-full);
   background: var(--text-muted);
+  transition: background 0.15s ease;
+}
+
+.sheet-handle-bar:active .sheet-handle {
+  background: var(--aws-orange);
 }
 
 .sheet-header {
-  padding: 6px 20px 14px;
+  padding: 4px 20px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
+  user-select: none;
 }
 
 .sheet-title {
@@ -633,6 +642,8 @@ body {
 .sheet-content {
   padding: 16px 20px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 16px;
