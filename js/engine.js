@@ -13,6 +13,8 @@ class QuizEngine {
     this.allQuestions = [];
     this.userStatesMap = {};
 
+    this.activeMode = 'all';
+
     // DOM Elements Cache
     this.dom = {
       domainBadge: document.getElementById('badge-domain'),
@@ -23,7 +25,9 @@ class QuizEngine {
       questionHint: document.getElementById('question-hint'),
       optionsContainer: document.getElementById('options-container'),
       btnSubmit: document.getElementById('btn-submit-answer'),
+      btnKnow100: document.getElementById('btn-know-100'),
       btnNext: document.getElementById('btn-next-question'),
+      modeChips: document.querySelectorAll('.mode-chip'),
       explanationContainer: document.getElementById('explanation-container'),
       explanationHeader: document.getElementById('explanation-header'),
       leitnerFeedback: document.getElementById('leitner-feedback'),
@@ -37,6 +41,47 @@ class QuizEngine {
   bindEvents() {
     this.dom.btnSubmit.addEventListener('click', () => this.submitAnswer());
     this.dom.btnNext.addEventListener('click', () => this.loadNextQuestion());
+
+    if (this.dom.btnKnow100) {
+      this.dom.btnKnow100.addEventListener('click', () => this.markKnow100());
+    }
+
+    if (this.dom.modeChips) {
+      this.dom.modeChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          this.setMode(chip.dataset.mode);
+        });
+      });
+    }
+  }
+
+  setMode(mode) {
+    this.activeMode = mode || 'all';
+    this.dom.modeChips.forEach(c => {
+      c.classList.toggle('active', c.dataset.mode === this.activeMode);
+    });
+    this.loadNextQuestion();
+  }
+
+  async markKnow100() {
+    if (!this.currentQuestion) return;
+    const q = this.currentQuestion;
+
+    this.currentUserState.box = 5;
+    this.currentUserState.answered_at = Date.now();
+    this.currentUserState.correct_count = (this.currentUserState.correct_count || 0) + 1;
+    this.userStatesMap[q.id] = this.currentUserState;
+
+    await window.dbManager.updateUserState(q.id, {
+      box: 5,
+      answered_at: Date.now(),
+      correct_count: this.currentUserState.correct_count
+    });
+
+    if (window.syncManager) window.syncManager.markStateDirty();
+    if (window.app) window.app.updateProgressStats();
+
+    await this.loadNextQuestion();
   }
 
   /**
@@ -71,8 +116,8 @@ class QuizEngine {
   renderEmptyState() {
     const lang = window.appLang || 'ru';
     this.dom.questionText.innerHTML = lang === 'ru'
-      ? 'База вопросов пуста.<br><span style="font-size: 14px; color: var(--text-secondary);">Перейдите на вкладку <strong>Импорт</strong> и загрузите вопросы или нажмите «Загрузить 8 стартовых».</span>'
-      : 'Question database is empty.<br><span style="font-size: 14px; color: var(--text-secondary);">Go to the <strong>Import</strong> tab to paste questions or click "Load 8 starter questions".</span>';
+      ? 'База вопросов пуста.<br><span style="font-size: 14px; color: var(--text-secondary);">Перейдите на вкладку <strong>Импорт</strong> и нажмите «Загрузить базу (600 вопросов)».</span>'
+      : 'Question database is empty.<br><span style="font-size: 14px; color: var(--text-secondary);">Go to the <strong>Import</strong> tab and click "Load database (600 questions)".</span>';
     
     this.dom.optionsContainer.innerHTML = '';
     this.dom.questionHint.textContent = '';
@@ -86,13 +131,23 @@ class QuizEngine {
    * Picks and renders the next question via LeitnerEngine
    */
   async loadNextQuestion() {
-    if (this.allQuestions.length === 0) {
-      await this.loadQuizPool();
-      return;
+    let pool = this.allQuestions;
+    if (this.activeMode === 'weak') {
+      const weakList = this.allQuestions.filter(q => {
+        const s = this.userStatesMap[q.id];
+        return !s || !s.answered_at || s.error_count > s.correct_count || s.box <= 1;
+      });
+      if (weakList.length > 0) pool = weakList;
+    } else if (this.activeMode === 'traps') {
+      const trapList = this.allQuestions.filter(q => q.trap);
+      if (trapList.length > 0) pool = trapList;
+    } else if (this.activeMode === 'hard') {
+      const hardList = this.allQuestions.filter(q => q.difficulty === 3);
+      if (hardList.length > 0) pool = hardList;
     }
 
     const lastId = this.currentQuestion ? this.currentQuestion.id : null;
-    const nextQ = window.LeitnerEngine.pickNextQuestion(this.allQuestions, this.userStatesMap, lastId);
+    const nextQ = window.LeitnerEngine.pickNextQuestion(pool, this.userStatesMap, lastId);
 
     if (!nextQ) {
       this.renderEmptyState();

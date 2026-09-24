@@ -40,6 +40,9 @@
       <button class="nav-tab active" data-screen="screen-trainer">
         <span class="nav-icon">🎯</span> <span data-i18n="nav_trainer">Тренажер</span>
       </button>
+      <button class="nav-tab" data-screen="screen-cards">
+        <span class="nav-icon">💡</span> <span data-i18n="nav_cards">Карточки</span>
+      </button>
       <button class="nav-tab" data-screen="screen-exam">
         <span class="nav-icon">⏱️</span> <span data-i18n="nav_exam">Экзамен</span>
       </button>
@@ -56,6 +59,14 @@
 
       <!-- SCREEN 1: TRAINER (QUIZ / LEITNER) -->
       <section id="screen-trainer" class="screen-view active">
+        <!-- Quick Mode Filter Chips -->
+        <div class="mode-chips-bar">
+          <button class="mode-chip active" data-mode="all">🎯 Все вопросы</button>
+          <button class="mode-chip" data-mode="weak">⚠️ Слабые темы</button>
+          <button class="mode-chip" data-mode="traps">🪤 Пары-ловушки</button>
+          <button class="mode-chip" data-mode="hard">🔥 Уровень 3</button>
+        </div>
+
         <!-- Meta Bar -->
         <div class="meta-bar">
           <div class="badge-group">
@@ -83,9 +94,12 @@
           </div>
 
           <!-- Actions -->
-          <div class="quiz-actions">
+          <div class="quiz-actions" style="flex-wrap: wrap;">
             <button id="btn-submit-answer" class="btn-primary" disabled>
               <span data-i18n="btn_submit">Ответить</span>
+            </button>
+            <button id="btn-know-100" class="btn-know-100" title="Отметить как освоенное на 100% (Box 5)">
+              💯 Знаю на 100%
             </button>
             <button id="btn-next-question" class="btn-primary" style="display: none;">
               <span data-i18n="btn_next">Следующий вопрос ➔</span>
@@ -107,6 +121,34 @@
           <div id="explanation-detailed" class="explanation-detailed">
             <!-- Detailed -->
           </div>
+        </div>
+      <!-- SCREEN: FLASHCARDS (КАРТОЧКИ-ЛОВУШКИ) -->
+      <section id="screen-cards" class="screen-view">
+        <div class="meta-bar">
+          <div class="badge-group">
+            <span id="fc-category-badge" class="badge badge-domain">Cloud Concepts</span>
+            <span id="fc-box-badge" class="badge badge-box" data-box="0">Box 0</span>
+            <span id="fc-mastered-badge" class="badge">💡 0 / 40 освоено</span>
+          </div>
+        </div>
+
+        <div id="flashcard-box" class="flashcard-view" tabindex="0">
+          <div id="fc-name" class="flashcard-service-title">Amazon EC2</div>
+          <div id="fc-hint" class="flashcard-tap-hint">👆 Нажмите, чтобы открыть определение и ловушку</div>
+          <div id="fc-desc" class="flashcard-desc" style="display: none;"></div>
+          <div id="fc-trap" class="flashcard-trap-alert" style="display: none;"></div>
+        </div>
+
+        <div id="fc-grade-container" class="grade-actions-grid" style="display: none;">
+          <button id="btn-fc-grade-0" class="btn-grade btn-grade-0">❌ Не знал</button>
+          <button id="btn-fc-grade-1" class="btn-grade btn-grade-1">⚠️ Примерно</button>
+          <button id="btn-fc-grade-2" class="btn-grade btn-grade-2">✅ Знал точно</button>
+        </div>
+
+        <div class="quiz-actions" style="margin-top: 14px;">
+          <button id="btn-fc-know" class="btn-know-100" style="width: 100%; justify-content: center;">
+            💯 Знаю на 100% — убрать из карточек
+          </button>
         </div>
       </section>
 
@@ -197,7 +239,7 @@
                 📥 Импортировать вопросы
               </button>
               <button id="btn-load-starter" class="btn-secondary">
-                📦 Загрузить 8 стартовых
+                📦 Загрузить базу (600 вопросов)
               </button>
             </div>
           </div>
@@ -232,16 +274,31 @@
             <div class="stat-label">Всего вопросов</div>
           </div>
           <div class="stat-card">
+            <div id="stat-seen-q" class="stat-value" style="color: var(--info-text);">0</div>
+            <div class="stat-label">Пройдено уникальных</div>
+          </div>
+          <div class="stat-card">
+            <div id="stat-total-attempts" class="stat-value" style="color: var(--aws-orange);">0</div>
+            <div class="stat-label">Всего ответов (попыток)</div>
+          </div>
+          <div class="stat-card">
             <div id="stat-mastered" class="stat-value" style="color: var(--success-text);">0</div>
             <div class="stat-label">Выучено (Box 4-5)</div>
           </div>
           <div class="stat-card">
-            <div id="stat-accuracy" class="stat-value" style="color: var(--info-text);">0%</div>
+            <div id="stat-accuracy" class="stat-value" style="color: var(--box-4);">0%</div>
             <div class="stat-label">Точность ответов</div>
           </div>
-          <div class="stat-card">
-            <div id="stat-in-progress" class="stat-value" style="color: var(--box-1);">0</div>
-            <div class="stat-label">В работе (Box 0-3)</div>
+        </div>
+
+        <!-- Domain Progress Breakdown (like in old trainer) -->
+        <div class="card-question">
+          <h3 style="margin-bottom: 4px;">Освоение по доменам CLF-C02</h3>
+          <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 12px;">
+            Доли доменов соответствуют официальному экзамену AWS.
+          </p>
+          <div id="domain-progress-container" class="domain-progress-list">
+            <!-- Dynamically populated rows with stacked bars -->
           </div>
         </div>
 

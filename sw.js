@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clf-trainer-v2';
+const CACHE_NAME = 'clf-trainer-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -12,7 +12,8 @@ const ASSETS_TO_CACHE = [
   './js/exam.js',
   './js/sync.js',
   './data/starter.json',
-  './data/services_info.json'
+  './data/services_info.json',
+  './data/flashcards.json'
 ];
 
 self.addEventListener('install', (event) => {

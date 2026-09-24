@@ -36,16 +36,38 @@ class AppController {
 
       // Stats Section
       statTotalQ: document.getElementById('stat-total-q'),
+      statSeenQ: document.getElementById('stat-seen-q'),
+      statTotalAttempts: document.getElementById('stat-total-attempts'),
       statMastered: document.getElementById('stat-mastered'),
       statAccuracy: document.getElementById('stat-accuracy'),
-      statInProgress: document.getElementById('stat-in-progress'),
+      domainProgressContainer: document.getElementById('domain-progress-container'),
       boxCount0: document.getElementById('box-count-0'),
       boxCount1: document.getElementById('box-count-1'),
       boxCount2: document.getElementById('box-count-2'),
       boxCount3: document.getElementById('box-count-3'),
       boxCount4: document.getElementById('box-count-4'),
-      boxCount5: document.getElementById('box-count-5')
+      boxCount5: document.getElementById('box-count-5'),
+
+      // Flashcards Section
+      flashcardsBox: document.getElementById('flashcard-box'),
+      fcName: document.getElementById('fc-name'),
+      fcHint: document.getElementById('fc-hint'),
+      fcDesc: document.getElementById('fc-desc'),
+      fcTrap: document.getElementById('fc-trap'),
+      fcGradeContainer: document.getElementById('fc-grade-container'),
+      fcCategoryBadge: document.getElementById('fc-category-badge'),
+      fcBoxBadge: document.getElementById('fc-box-badge'),
+      fcMasteredBadge: document.getElementById('fc-mastered-badge'),
+      btnFcKnow: document.getElementById('btn-fc-know'),
+      btnFcGrade0: document.getElementById('btn-fc-grade-0'),
+      btnFcGrade1: document.getElementById('btn-fc-grade-1'),
+      btnFcGrade2: document.getElementById('btn-fc-grade-2')
     };
+
+    this.flashcardsList = [];
+    this.flashcardsState = {};
+    this.currentFlashcard = null;
+    this.isFlashcardRevealed = false;
 
     this.init();
   }
@@ -131,6 +153,19 @@ class AppController {
     // Touch swipe down on bottom sheet
     this.setupSheetSwipeToClose();
 
+    // Flashcard Actions
+    if (this.dom.flashcardsBox) {
+      this.dom.flashcardsBox.addEventListener('click', () => this.revealFlashcard());
+    }
+    if (this.dom.btnFcGrade0) {
+      this.dom.btnFcGrade0.addEventListener('click', () => this.gradeFlashcard(0));
+      this.dom.btnFcGrade1.addEventListener('click', () => this.gradeFlashcard(1));
+      this.dom.btnFcGrade2.addEventListener('click', () => this.gradeFlashcard(2));
+    }
+    if (this.dom.btnFcKnow) {
+      this.dom.btnFcKnow.addEventListener('click', () => this.gradeFlashcard(5));
+    }
+
     // Import Actions
     this.dom.btnRunImport.addEventListener('click', () => this.handleImport());
     this.dom.btnLoadStarter.addEventListener('click', () => this.loadStarterQuestions(false));
@@ -164,6 +199,8 @@ class AppController {
       this.updateProgressStats();
     } else if (screenId === 'screen-exam') {
       window.examSimulator.updateAvailableCount();
+    } else if (screenId === 'screen-cards') {
+      this.renderNextFlashcard();
     }
   }
 
@@ -443,6 +480,101 @@ class AppController {
     }
   }
 
+  // --- FLASHCARDS CONTROLLER ---
+
+  async loadFlashcardsData() {
+    try {
+      const res = await fetch('./data/flashcards.json');
+      if (res.ok) {
+        this.flashcardsList = await res.json();
+      }
+      const saved = localStorage.getItem('clf_flashcards_state');
+      if (saved) {
+        this.flashcardsState = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.warn('[App] Flashcards load error:', e);
+    }
+  }
+
+  saveFlashcardsState() {
+    localStorage.setItem('clf_flashcards_state', JSON.stringify(this.flashcardsState));
+  }
+
+  renderNextFlashcard() {
+    if (!this.flashcardsList || this.flashcardsList.length === 0) return;
+
+    // Filter cards not yet in box 5
+    const candidates = this.flashcardsList.filter(c => {
+      const s = this.flashcardsState[c.id] || { b: 0 };
+      return s.b < 5;
+    });
+
+    const pool = candidates.length > 0 ? candidates : this.flashcardsList;
+    const nextCard = pool[Math.floor(Math.random() * pool.length)];
+
+    this.currentFlashcard = nextCard;
+    this.isFlashcardRevealed = false;
+
+    const cardState = this.flashcardsState[nextCard.id] || { b: 0 };
+    const masteredCount = this.flashcardsList.filter(c => (this.flashcardsState[c.id] && this.flashcardsState[c.id].b >= 5)).length;
+
+    if (this.dom.fcName) this.dom.fcName.textContent = nextCard.name;
+    if (this.dom.fcHint) this.dom.fcHint.style.display = 'block';
+    if (this.dom.fcDesc) this.dom.fcDesc.style.display = 'none';
+    if (this.dom.fcTrap) this.dom.fcTrap.style.display = 'none';
+    if (this.dom.fcGradeContainer) this.dom.fcGradeContainer.style.display = 'none';
+
+    if (this.dom.fcCategoryBadge) this.dom.fcCategoryBadge.textContent = (nextCard.cat || 'AWS').toUpperCase();
+    if (this.dom.fcBoxBadge) {
+      this.dom.fcBoxBadge.textContent = `Box ${cardState.b || 0}`;
+      this.dom.fcBoxBadge.setAttribute('data-box', cardState.b || 0);
+    }
+    if (this.dom.fcMasteredBadge) {
+      this.dom.fcMasteredBadge.textContent = `💡 ${masteredCount} / ${this.flashcardsList.length} освоено`;
+    }
+  }
+
+  revealFlashcard() {
+    if (this.isFlashcardRevealed || !this.currentFlashcard) return;
+    this.isFlashcardRevealed = true;
+
+    const c = this.currentFlashcard;
+    if (this.dom.fcHint) this.dom.fcHint.style.display = 'none';
+    if (this.dom.fcDesc) {
+      this.dom.fcDesc.textContent = c.desc;
+      this.dom.fcDesc.style.display = 'block';
+    }
+    if (this.dom.fcTrap && c.trap) {
+      this.dom.fcTrap.innerHTML = `<strong>⚠️ ЛОВУШКА ЭКЗАМЕНА:</strong> ${c.trap}`;
+      this.dom.fcTrap.style.display = 'block';
+    }
+    if (this.dom.fcGradeContainer) {
+      this.dom.fcGradeContainer.style.display = 'grid';
+    }
+  }
+
+  gradeFlashcard(grade) {
+    if (!this.currentFlashcard) return;
+    const id = this.currentFlashcard.id;
+    const current = this.flashcardsState[id] || { b: 0, n: 0 };
+    current.n++;
+
+    if (grade === 5) {
+      current.b = 5;
+    } else if (grade === 2) {
+      current.b = Math.min(5, (current.b || 0) + 1);
+    } else if (grade === 1) {
+      current.b = Math.max(0, current.b || 0);
+    } else {
+      current.b = 0;
+    }
+
+    this.flashcardsState[id] = current;
+    this.saveFlashcardsState();
+    this.renderNextFlashcard();
+  }
+
   // --- STATS VIEW UPDATER ---
 
   async updateProgressStats() {
@@ -452,9 +584,41 @@ class AppController {
     const stats = window.LeitnerEngine.computeStatistics(questions, states);
 
     if (this.dom.statTotalQ) this.dom.statTotalQ.textContent = stats.totalQuestions;
-    if (this.dom.statMastered) this.dom.statMastered.textContent = stats.mastered;
+    if (this.dom.statSeenQ) {
+      const pct = stats.totalQuestions > 0 ? Math.round((stats.seenQuestionsCount / stats.totalQuestions) * 100) : 0;
+      this.dom.statSeenQ.textContent = `${stats.seenQuestionsCount} / ${stats.totalQuestions} (${pct}%)`;
+    }
+    if (this.dom.statTotalAttempts) this.dom.statTotalAttempts.textContent = stats.totalAttempts;
+    if (this.dom.statMastered) {
+      const pct = stats.totalQuestions > 0 ? Math.round((stats.mastered / stats.totalQuestions) * 100) : 0;
+      this.dom.statMastered.textContent = `${stats.mastered} (${pct}%)`;
+    }
     if (this.dom.statAccuracy) this.dom.statAccuracy.textContent = `${stats.accuracy}%`;
-    if (this.dom.statInProgress) this.dom.statInProgress.textContent = stats.inProgress;
+
+    // Render domain breakdown stacked progress bars
+    if (this.dom.domainProgressContainer && stats.domainBreakdown) {
+      let html = '';
+      Object.keys(stats.domainBreakdown).forEach(k => {
+        const d = stats.domainBreakdown[k];
+        if (d.total > 0) {
+          const masteredPct = Math.round((d.mastered / d.total) * 100);
+          const learningPct = Math.round((d.learning / d.total) * 100);
+          const weakPct = Math.round((d.weak / d.total) * 100);
+          html += `
+            <div class="domain-progress-row">
+              <div class="domain-name" title="${d.name}">${d.name}</div>
+              <div class="domain-bar-track">
+                <i class="bar-segment-mastered" style="width: ${masteredPct}%;"></i>
+                <i class="bar-segment-learning" style="width: ${learningPct}%;"></i>
+                <i class="bar-segment-weak" style="width: ${weakPct}%;"></i>
+              </div>
+              <div class="domain-stats-pct">${d.mastered}/${d.total} (${masteredPct}%)</div>
+            </div>
+          `;
+        }
+      });
+      this.dom.domainProgressContainer.innerHTML = html;
+    }
 
     for (let box = 0; box <= 5; box++) {
       const boxEl = this.dom[`boxCount${box}`];

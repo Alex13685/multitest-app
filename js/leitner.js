@@ -118,14 +118,46 @@ class LeitnerEngine {
     let totalCorrectAnswers = 0;
     let totalErrorAnswers = 0;
 
+    let seenQuestionsCount = 0;
+    const domainBreakdown = {
+      cloud_concepts: { name: 'Cloud Concepts (24%)', total: 0, mastered: 0, learning: 0, weak: 0, ok: 0, n: 0 },
+      security: { name: 'Security & Compliance (30%)', total: 0, mastered: 0, learning: 0, weak: 0, ok: 0, n: 0 },
+      technology: { name: 'Technology & Services (34%)', total: 0, mastered: 0, learning: 0, weak: 0, ok: 0, n: 0 },
+      billing: { name: 'Billing & Pricing (12%)', total: 0, mastered: 0, learning: 0, weak: 0, ok: 0, n: 0 }
+    };
+
     allQuestions.forEach(q => {
       const st = statesMap[q.id];
       const box = (st && st.box !== undefined) ? st.box : 0;
       boxCounts[box] = (boxCounts[box] || 0) + 1;
 
+      const dom = q.domain || 'technology';
+      if (!domainBreakdown[dom]) {
+        domainBreakdown[dom] = { name: dom, total: 0, mastered: 0, learning: 0, weak: 0, ok: 0, n: 0 };
+      }
+      domainBreakdown[dom].total++;
+
       if (st) {
-        totalCorrectAnswers += (st.correct_count || 0);
-        totalErrorAnswers += (st.error_count || 0);
+        const correct = st.correct_count || 0;
+        const err = st.error_count || 0;
+        const totalAns = correct + err;
+        totalCorrectAnswers += correct;
+        totalErrorAnswers += err;
+
+        if (totalAns > 0 || st.answered_at > 0 || box > 0) {
+          seenQuestionsCount++;
+        }
+
+        domainBreakdown[dom].ok += correct;
+        domainBreakdown[dom].n += totalAns;
+
+        if (box >= 4) {
+          domainBreakdown[dom].mastered++;
+        } else if (box >= 1) {
+          domainBreakdown[dom].learning++;
+        } else if (totalAns > 0) {
+          domainBreakdown[dom].weak++;
+        }
       }
     });
 
@@ -136,11 +168,13 @@ class LeitnerEngine {
 
     return {
       totalQuestions,
+      seenQuestionsCount,
+      totalAttempts: totalAnswers,
       mastered,
       inProgress,
       accuracy,
-      totalAnswers,
-      boxCounts
+      boxCounts,
+      domainBreakdown
     };
   }
 }
